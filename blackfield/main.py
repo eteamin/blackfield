@@ -5,9 +5,6 @@ from threading import Thread
 
 from kivy.app import App
 from kivy.clock import Clock
-from kivy.uix.label import Label
-from kivy.core.window import Window
-from kivy.uix.image import Image
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.screenmanager import Screen, ScreenManager, FadeTransition
 from rfid.main import Driver
@@ -49,8 +46,6 @@ class MainScreen(Screen):
 
     def __init__(self):
         super(MainScreen, self).__init__()
-        background = Image(source=BACKGROUND)
-        self.add_widget(background)
         # Checking for cart input 30 times per second
         self.event = Clock.schedule_interval(self.listen_for_cart_input, EVENT_INTERVAL_RATE)
 
@@ -84,13 +79,6 @@ class ImageScreen(Screen):
 class PersonInfoContainer(RelativeLayout):
     def __init__(self):
         super(PersonInfoContainer, self).__init__()
-        if person_to_view:
-            store_file(person_to_view.image)
-            container = RelativeLayout(size_hint=(1, None), size=(Window.width, Window.height))
-            container.add_widget(Image(source=PERSON_IMAGE))
-            container.add_widget(Image(source=NAME_FRAME, pos_hint={'center_x': 0.5, 'center_y': 0.1}))
-            container.add_widget(Label(text=person_to_view.name, pos_hint={'center_x': 0.5, 'center_y': 0.1}))
-            self.add_widget(container)
 
 
 class BlackField(App):
