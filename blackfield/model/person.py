@@ -7,4 +7,4 @@ class Person(object):
         self.image = image
 
     def __repr__(self):
-        return '<Person: name=%s, person_num=%s' % (repr(self.name), repr(self.code))
+        return '<Person: name=%s, code=%s' % (repr(self.name), repr(self.code))

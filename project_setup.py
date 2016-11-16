@@ -1,7 +1,6 @@
 import sqlite3
 
-from blackfield.model.person import Person
-from blackfield.variables import DB_FILE, DB_TEST_FILE, TEST_AVATAR
+from blackfield.variables import DB_FILE, DB_TEST_FILE, TEST_PERSON
 
 
 if __name__ == '__main__':
@@ -14,32 +13,33 @@ if __name__ == '__main__':
         # Create the db
         cursor.execute(
             """
-            CREATE TABLE people (id int primary_key, name char, person_code unique, image BLOB)
+            CREATE TABLE people (id int primary_key, name char, code int unique, image BLOB);
             """
         )
-    except sqlite3.OperationalError:
-        pass
+    except sqlite3.OperationalError as ex:
+        print('Creating db failed due to %s' % str(ex))
 
     try:
         # Create test db
         cursor_to_test_db.execute(
             """
-            CREATE TABLE people (id int primary_key, name char, person_code unique, image BLOB)
+            CREATE TABLE people (id int primary_key, name char, code int unique, image BLOB);
             """
         )
-    except sqlite3.OperationalError:
-        pass
+    except sqlite3.OperationalError as ex:
+        print('Creating test db failed due to %s' % str(ex))
 
     try:
         # Insert test data
-        with open(TEST_AVATAR, 'rb') as avatar:
-            test_person = Person(name='test', code='1', image=[memoryview(avatar.read())])
-            values = (test_person.name, test_person.code, test_person.image)
-            cursor_to_test_db.execute(
-                """
-                INSERT INTO people VALUES (?, ?, ?)
-                """,
-                values
-            )
-    except sqlite3.OperationalError:
-        pass
+        values = (TEST_PERSON.name, TEST_PERSON.code, TEST_PERSON.image)
+        cursor_to_test_db.execute(
+            """
+            INSERT INTO people (name, code, image) VALUES (?, ?, ?);
+            """,
+            values
+        )
+    except sqlite3.OperationalError as ex:
+        print('Inserting test data failed due to %s' % str(ex))
+
+    connection.commit()
+    connection_to_test_db.commit()

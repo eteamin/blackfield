@@ -4,12 +4,15 @@ from blackfield.model import Person
 
 
 def select(cursor: sqlite3.Cursor, code: int) -> Person:
-    return personify(cursor.execute(
+    query_result = cursor.execute(
         """
-        SELECT * FROM people WHERE person_num = ?
+        SELECT * FROM people WHERE code = (?)
         """,
-        code
-    ).fetchone())
+        (code, )
+    ).fetchone()
+    if not query_result:
+        return None
+    return personify(query_result)
 
 
 def personify(query_result):
