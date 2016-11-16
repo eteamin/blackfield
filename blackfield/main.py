@@ -5,13 +5,9 @@ from threading import Thread
 
 from kivy.app import App
 from kivy.clock import Clock
-from kivy.core.text import Label
-from kivy.core.window import Window
 from kivy.uix.button import Button
 from kivy.uix.image import Image
-from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.screenmanager import Screen, ScreenManager
-from kivy.uix.widget import Widget
 from rfid.main import Driver
 
 from blackfield.data_access.select import select
@@ -47,6 +43,7 @@ class MainScreen(Screen):
         # Checking for cart input 30 times per second
         self.event = Clock.schedule_interval(self.listen_for_cart_input, 1/30.)
 
+    # noinspection PyUnusedLocal
     def listen_for_cart_input(self, dt):
         try:
             code = carts.get(timeout=QUEUE_TIMEOUT)
@@ -68,6 +65,7 @@ class ImageScreen(Screen):
         self.add_widget(Button(text='Hi'))
         trigger_back_to_main()
 
+    # noinspection PyMethodMayBeStatic, PyUnusedLocal
     def back_to_main(self, dt):
         screen_manager.switch_to(MainScreen())
 
