@@ -31,6 +31,16 @@ person_to_view = None
 driver = Driver(SERIAL_PATH)
 rfid_thread = Thread(name='RFID', target=read_cart, daemon=True)
 rfid_thread.start()
+image_view_timer = 0
+
+
+def wait():
+    global image_view_timer
+    image_view_timer = 2
+    time.sleep(image_view_timer)
+    image_view_timer = 0
+
+wait_thread = Thread(name='wait', daemon=True)
 
 
 class MainScreen(Screen):
@@ -46,28 +56,20 @@ class MainScreen(Screen):
                 assert isinstance(person, Person)
                 global person_to_view
                 person_to_view = person
-                self.add_widget(PersonContainer())
-            except (Empty, Person):
+                screen_manager.switch_to(ImageScreen())
+            except (Empty, AssertionError):
                 time.sleep(0.1)
                 continue
 
 
-class PersonContainer(Widget):
+class ImageScreen(Screen):
     def __init__(self):
-        super(PersonContainer, self).__init__()
-        container = RelativeLayout()
-        image = Image(source=person_to_view.image)
-        title = Label(text='Sign Up', pos_hint={'center_x': 0.5, 'center_y': 0.9})
-        container.add_widget(title)
-
-        # password_input = TextInput(
-        #     hint_text='Password',
-        #     size_hint=(None, None),
-        #     size=(Window.width / 2, Window.height / 20),
-        #     pos_hint={'center_x': 0.5, 'center_y': 0.6},
-        #     password=True
-        # )
-        # container.add_widget(password_input)
+        super(ImageScreen, self).__init__()
+        global image_view_timer
+        wait_thread.start()
+        while image_view_timer:
+            time.sleep(0.1)
+        screen_manager.switch_to(MainScreen())
 
 
 class BlackField(App):

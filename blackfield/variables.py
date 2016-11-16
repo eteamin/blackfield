@@ -1,10 +1,10 @@
 from os import path
 
-import orm
+import blackfield
 
 
-DB_FILE = path.abspath(path.join(path.dirname(orm.__file__), '..', 'people.db'))
-DB_TEST_FILE = path.abspath(path.join(path.dirname(orm.__file__), '..', 'people.db.test'))
-TEST_AVATAR = path.abspath(path.join(path.dirname(orm.__file__), 'tests', 'stuff', 'avatar.jpg'))
-BACKGROUND = path.abspath(path.join(path.dirname(orm.__file__), '..', 'stuff', 'background.jpg'))
+DB_FILE = path.abspath(path.join(path.dirname(blackfield.__file__), 'people.db'))
+DB_TEST_FILE = path.abspath(path.join(path.dirname(blackfield.__file__), 'people.db.test'))
+BACKGROUND = path.abspath(path.join(path.dirname(blackfield.__file__), 'stuff', 'background.jpg'))
+TEST_AVATAR = path.abspath(path.join(path.dirname(blackfield.__file__), 'tests', 'stuff', 'avatar.jpg'))
 SERIAL_PATH = '/dev/ttyUSB0'

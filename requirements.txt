@@ -1,3 +1,0 @@
-coverage
-Cython==0.23
-pygame
