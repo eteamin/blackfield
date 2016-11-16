@@ -8,6 +8,8 @@ from blackfield.model import Person
 DB_FILE = path.abspath(path.join(path.dirname(blackfield.__file__), 'people.db'))
 DB_TEST_FILE = path.abspath(path.join(path.dirname(blackfield.__file__), 'people.db.test'))
 BACKGROUND = path.abspath(path.join(path.dirname(blackfield.__file__), 'stuff', 'background.png'))
+NAME_FRAME = path.abspath(path.join(path.dirname(blackfield.__file__), 'stuff', 'name_frame.png'))
+PERSON_IMAGE = path.abspath(path.join(path.dirname(blackfield.__file__), 'stuff', 'person_image.png'))
 TEST_AVATAR = path.abspath(path.join(path.dirname(blackfield.__file__), 'tests', 'stuff', 'avatar.jpg'))
 SERIAL_PATH = '/dev/ttyUSB0'
 with open(TEST_AVATAR, 'rb') as avatar:

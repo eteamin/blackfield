@@ -5,33 +5,44 @@ from threading import Thread
 
 from kivy.app import App
 from kivy.clock import Clock
-from kivy.uix.button import Button
+from kivy.uix.label import Label
+from kivy.core.window import Window
 from kivy.uix.image import Image
-from kivy.uix.screenmanager import Screen, ScreenManager
+from kivy.uix.relativelayout import RelativeLayout
+from kivy.uix.screenmanager import Screen, ScreenManager, FadeTransition
 from rfid.main import Driver
 
 from blackfield.data_access.select import select
 from blackfield.model import Person
-from blackfield.variables import DB_TEST_FILE, BACKGROUND, SERIAL_PATH, TEST_ENCRYPTION_KEY
+from blackfield.variables import DB_TEST_FILE, BACKGROUND, SERIAL_PATH, TEST_ENCRYPTION_KEY, NAME_FRAME, PERSON_IMAGE
 
 
-screen_manager = ScreenManager()
+screen_manager = ScreenManager(transition=FadeTransition())
 CART_INSERT_TIMEOUT = 1
+TRANSITION_TIMEOUT = 2
+EVENT_INTERVAL_RATE = 1/30.
 QUEUE_TIMEOUT = 0.1
+READ_CARD_SLEEP_TIMEOUT = 2
+DRIVER_TIMEOUT = 1
 carts = Queue()
 cursor = sqlite3.connect(DB_TEST_FILE).cursor()
 person_to_view = None
-driver = Driver(SERIAL_PATH, encrypion_key=TEST_ENCRYPTION_KEY, timeout=1)
+driver = Driver(SERIAL_PATH, encrypion_key=TEST_ENCRYPTION_KEY, timeout=DRIVER_TIMEOUT)
 
 
 def read_cart():
     while True:
         code = driver.loop()
         carts.put(code)
-        time.sleep(2)
+        time.sleep(READ_CARD_SLEEP_TIMEOUT)
 
 rfid_thread = Thread(name='RFID', target=read_cart, daemon=True)
 rfid_thread.start()
+
+
+def store_file(file):
+    with open(PERSON_IMAGE, 'wb') as image:
+        image.write(file)
 
 
 class MainScreen(Screen):
@@ -41,7 +52,7 @@ class MainScreen(Screen):
         background = Image(source=BACKGROUND)
         self.add_widget(background)
         # Checking for cart input 30 times per second
-        self.event = Clock.schedule_interval(self.listen_for_cart_input, 1/30.)
+        self.event = Clock.schedule_interval(self.listen_for_cart_input, EVENT_INTERVAL_RATE)
 
     # noinspection PyUnusedLocal
     def listen_for_cart_input(self, dt):
@@ -61,13 +72,25 @@ class MainScreen(Screen):
 class ImageScreen(Screen):
     def __init__(self):
         super(ImageScreen, self).__init__()
-        trigger_back_to_main = Clock.create_trigger(self.back_to_main, timeout=2)
-        self.add_widget(Button(text='Hi'))
+        trigger_back_to_main = Clock.create_trigger(self.back_to_main, timeout=TRANSITION_TIMEOUT)
+        self.add_widget(PersonInfoContainer())
         trigger_back_to_main()
 
     # noinspection PyMethodMayBeStatic, PyUnusedLocal
     def back_to_main(self, dt):
         screen_manager.switch_to(MainScreen())
+
+
+class PersonInfoContainer(RelativeLayout):
+    def __init__(self):
+        super(PersonInfoContainer, self).__init__()
+        if person_to_view:
+            store_file(person_to_view.image)
+            container = RelativeLayout(size_hint=(1, None), size=(Window.width, Window.height))
+            container.add_widget(Image(source=PERSON_IMAGE))
+            container.add_widget(Image(source=NAME_FRAME, pos_hint={'center_x': 0.5, 'center_y': 0.1}))
+            container.add_widget(Label(text=person_to_view.name, pos_hint={'center_x': 0.5, 'center_y': 0.1}))
+            self.add_widget(container)
 
 
 class BlackField(App):
