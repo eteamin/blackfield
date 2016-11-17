@@ -8,7 +8,7 @@ def select(cursor: sqlite3.Cursor, code: bytes) -> Person:
         """
         SELECT * FROM people WHERE code = (?)
         """,
-        (int(code), )
+        (int(code, 16), )
     ).fetchone()
     if not query_result:
         return None

@@ -1,6 +1,19 @@
 
 
-MainScreen:
+<MainScreen>:
+  Image:
+    source: root.background
+
+
+<PersonInfoContainer>:
   Image:
     source: root.image
+    pos_hint: {'center_x': 0.5, 'center_y': 0.5}
 
+  Image:
+    source: root.frame
+    pos_hint: {'center_x': 0.5, 'center_y': 0.1}
+
+  Label:
+    text: root.name
+    pos_hint: {'center_x': 0.5, 'center_y': 0.1}

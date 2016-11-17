@@ -5,21 +5,23 @@ from threading import Thread
 
 from kivy.app import App
 from kivy.clock import Clock
+from kivy.lang import Builder
+from kivy.properties import StringProperty
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.screenmanager import Screen, ScreenManager, FadeTransition
 from rfid.main import Driver
 
 from blackfield.data_access.select import select
 from blackfield.model import Person
-from blackfield.variables import DB_TEST_FILE, BACKGROUND, SERIAL_PATH, TEST_ENCRYPTION_KEY, NAME_FRAME, PERSON_IMAGE
+from blackfield.variables import DB_TEST_FILE, BACKGROUND, SERIAL_PATH, TEST_ENCRYPTION_KEY, LAYOUT, PERSON_IMAGE, \
+    NAME_FRAME
 
 
 screen_manager = ScreenManager(transition=FadeTransition())
-CART_INSERT_TIMEOUT = 1
-TRANSITION_TIMEOUT = 2
+TRANSITION_TIMEOUT = 1
 EVENT_INTERVAL_RATE = 1/30.
-QUEUE_TIMEOUT = 0.1
-READ_CARD_SLEEP_TIMEOUT = 2
+QUEUE_TIMEOUT = 0.01
+READ_CARD_SLEEP_TIMEOUT = 1
 DRIVER_TIMEOUT = 1
 carts = Queue()
 cursor = sqlite3.connect(DB_TEST_FILE).cursor()
@@ -30,8 +32,9 @@ driver = Driver(SERIAL_PATH, encrypion_key=TEST_ENCRYPTION_KEY, timeout=DRIVER_T
 def read_cart():
     while True:
         code = driver.loop()
-        carts.put(code)
-        time.sleep(READ_CARD_SLEEP_TIMEOUT)
+        if code:
+            carts.put(code)
+            time.sleep(READ_CARD_SLEEP_TIMEOUT)
 
 rfid_thread = Thread(name='RFID', target=read_cart, daemon=True)
 rfid_thread.start()
@@ -43,6 +46,7 @@ def store_file(file):
 
 
 class MainScreen(Screen):
+    background = BACKGROUND
 
     def __init__(self):
         super(MainScreen, self).__init__()
@@ -59,6 +63,7 @@ class MainScreen(Screen):
                 assert isinstance(person, Person)
                 global person_to_view
                 person_to_view = person
+                store_file(person_to_view.image)
                 screen_manager.switch_to(ImageScreen())
         except (Empty, AssertionError):
             pass
@@ -77,12 +82,19 @@ class ImageScreen(Screen):
 
 
 class PersonInfoContainer(RelativeLayout):
+    name = StringProperty()
+    image = PERSON_IMAGE
+    frame = NAME_FRAME
+
     def __init__(self):
         super(PersonInfoContainer, self).__init__()
+        self.name = person_to_view.name
+        print(self.name)
 
 
 class BlackField(App):
     def build(self):
+        Builder.load_file(LAYOUT)
         screen_manager.add_widget(MainScreen())
         return screen_manager
 

@@ -14,7 +14,7 @@ class TestCase(unittest.TestCase):
         self.driver = Driver(serial_path=SERIAL_PATH, encrypion_key=TEST_ENCRYPTION_KEY, timeout=1)
 
     def test_read_cart(self):
-        rfid_resp = int(self.driver.loop()[:12])
+        rfid_resp = int(self.driver.loop()[:12], 16)
         person = select(self.cursor, rfid_resp)
         self.assertEqual(person.__dict__, TEST_PERSON.__dict__)
 
