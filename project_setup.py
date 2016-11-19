@@ -13,7 +13,7 @@ if __name__ == '__main__':
         # Create the db
         cursor.execute(
             """
-            CREATE TABLE people (id int primary_key, name char, code int unique, image BLOB);
+            CREATE TABLE people (id int primary_key, name char, code int unique, image nvarchar unique);
             """
         )
     except sqlite3.OperationalError as ex:
@@ -23,7 +23,7 @@ if __name__ == '__main__':
         # Create test db
         cursor_to_test_db.execute(
             """
-            CREATE TABLE people (id int primary_key, name char, code int unique, image BLOB);
+            CREATE TABLE people (id int primary_key, name char, code int unique, image nvarchar unique);
             """
         )
     except sqlite3.OperationalError as ex:

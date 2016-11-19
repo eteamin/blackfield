@@ -3,12 +3,12 @@ import sqlite3
 from blackfield.model import Person
 
 
-def select(cursor: sqlite3.Cursor, code: bytes) -> Person:
+def select(cursor: sqlite3.Cursor, code: int) -> Person:
     query_result = cursor.execute(
         """
         SELECT * FROM people WHERE code = (?)
         """,
-        (int(code, 16), )
+        (code, )
     ).fetchone()
     if not query_result:
         return None

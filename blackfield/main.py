@@ -12,16 +12,15 @@ from kivy.uix.screenmanager import Screen, ScreenManager, FadeTransition
 from rfid.main import Driver
 
 from blackfield.data_access.select import select
-from blackfield.model import Person
-from blackfield.variables import DB_TEST_FILE, BACKGROUND, SERIAL_PATH, TEST_ENCRYPTION_KEY, LAYOUT, PERSON_IMAGE, \
-    NAME_FRAME
+from blackfield.variables import DB_TEST_FILE, BACKGROUND, SERIAL_PATH, TEST_ENCRYPTION_KEY, LAYOUT, NAME_FRAME, \
+    INVALID_CART
 
 
 screen_manager = ScreenManager(transition=FadeTransition())
-TRANSITION_TIMEOUT = 1
+TRANSITION_TIMEOUT = 1.5
 EVENT_INTERVAL_RATE = 1/30.
 QUEUE_TIMEOUT = 0.01
-READ_CARD_SLEEP_TIMEOUT = 1
+READ_CARD_SLEEP_TIMEOUT = 2
 DRIVER_TIMEOUT = 1
 carts = Queue()
 cursor = sqlite3.connect(DB_TEST_FILE).cursor()
@@ -32,17 +31,11 @@ driver = Driver(SERIAL_PATH, encrypion_key=TEST_ENCRYPTION_KEY, timeout=DRIVER_T
 def read_cart():
     while True:
         code = driver.loop()
-        if code:
-            carts.put(code)
-            time.sleep(READ_CARD_SLEEP_TIMEOUT)
+        carts.put(code)
+        time.sleep(READ_CARD_SLEEP_TIMEOUT)
 
 rfid_thread = Thread(name='RFID', target=read_cart, daemon=True)
 rfid_thread.start()
-
-
-def store_file(file):
-    with open(PERSON_IMAGE, 'wb') as image:
-        image.write(file)
 
 
 class MainScreen(Screen):
@@ -57,14 +50,15 @@ class MainScreen(Screen):
     def listen_for_cart_input(self, dt):
         try:
             code = carts.get(timeout=QUEUE_TIMEOUT)
+            print(code)
             person = select(cursor, code)
+            Clock.unschedule(self.event)
+            global person_to_view
             if person:
-                Clock.unschedule(self.event)
-                assert isinstance(person, Person)
-                global person_to_view
                 person_to_view = person
-                store_file(person_to_view.image)
-                screen_manager.switch_to(ImageScreen())
+            else:
+                person_to_view = select(cursor, INVALID_CART.code)
+            screen_manager.switch_to(ImageScreen())
         except (Empty, AssertionError):
             pass
 
@@ -83,13 +77,15 @@ class ImageScreen(Screen):
 
 class PersonInfoContainer(RelativeLayout):
     name = StringProperty()
-    image = PERSON_IMAGE
+    image = StringProperty()
     frame = NAME_FRAME
 
     def __init__(self):
         super(PersonInfoContainer, self).__init__()
         self.name = person_to_view.name
+        self.image = person_to_view.image_path
         print(self.name)
+        print(self.image)
 
 
 class BlackField(App):
