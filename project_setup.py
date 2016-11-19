@@ -31,7 +31,7 @@ if __name__ == '__main__':
 
     try:
         # Insert test data
-        values = (TEST_PERSON.name, TEST_PERSON.code, TEST_PERSON.image)
+        values = (TEST_PERSON.name, TEST_PERSON.code, TEST_PERSON.store_path)
         cursor_to_test_db.execute(
             """
             INSERT INTO people (name, code, image) VALUES (?, ?, ?);
@@ -43,7 +43,7 @@ if __name__ == '__main__':
 
     try:
         # Insert row for invalid card
-        values = (INVALID_CART.name, INVALID_CART.code, INVALID_CART.image)
+        values = (INVALID_CART.name, INVALID_CART.code, INVALID_CART.store_path)
         cursor_to_test_db.execute(
             """
             INSERT INTO people (name, code, image) VALUES (?, ?, ?);

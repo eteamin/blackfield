@@ -12,6 +12,8 @@ from kivy.uix.screenmanager import Screen, ScreenManager, FadeTransition
 from rfid.main import Driver
 
 from blackfield.data_access.select import select
+from blackfield.data_access.insert import insert
+from blackfield.model.person import Person
 from blackfield.variables import DB_TEST_FILE, BACKGROUND, SERIAL_PATH, TEST_ENCRYPTION_KEY, LAYOUT, NAME_FRAME, \
     INVALID_CART
 
@@ -50,7 +52,6 @@ class MainScreen(Screen):
     def listen_for_cart_input(self, dt):
         try:
             code = carts.get(timeout=QUEUE_TIMEOUT)
-            print(code)
             person = select(cursor, code)
             Clock.unschedule(self.event)
             global person_to_view
@@ -83,15 +84,23 @@ class PersonInfoContainer(RelativeLayout):
     def __init__(self):
         super(PersonInfoContainer, self).__init__()
         self.name = person_to_view.name
-        self.image = person_to_view.image_path
-        print(self.name)
-        print(self.image)
+        self.image = person_to_view.store_path
+
+
+class InsertDataScreen(Screen):
+    def __init__(self):
+        super(InsertDataScreen, self).__init__()
+
+    def save(self, name, code, image):
+        p = Person(name=name, code=code, image_path=image)
+        insert(cursor, p.name, p.code, p.store_path)
+        screen_manager.switch_to(InsertDataScreen())
 
 
 class BlackField(App):
     def build(self):
         Builder.load_file(LAYOUT)
-        screen_manager.add_widget(MainScreen())
+        screen_manager.add_widget(InsertDataScreen())
         return screen_manager
 
 

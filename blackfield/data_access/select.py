@@ -19,5 +19,5 @@ def personify(query_result):
     return Person(
         name=query_result[1],
         code=query_result[2],
-        image=query_result[3]
+        image_bytes=query_result[3]
     )

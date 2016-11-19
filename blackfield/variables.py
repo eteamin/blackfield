@@ -20,9 +20,9 @@ LAYOUT = path.abspath(path.join(path.dirname(blackfield.__file__), 'view', 'view
 SERIAL_PATH = '/dev/ttyUSB0'
 
 with open(TEST_AVATAR, 'rb') as avatar:
-    TEST_PERSON = Person(name='test', code=2199023320575, image=sqlite3.Binary(avatar.read()))
+    TEST_PERSON = Person(name='test', code=2199023320575, image_bytes=sqlite3.Binary(avatar.read()))
 
 with open(INVALID_CART_AVATAR, 'rb') as invalid_avatar:
-    INVALID_CART = Person(name='invalid', code=500, image=sqlite3.Binary(invalid_avatar.read()))
+    INVALID_CART = Person(name='invalid', code=500, image_bytes=sqlite3.Binary(invalid_avatar.read()))
 
 TEST_ENCRYPTION_KEY = 281474976710655

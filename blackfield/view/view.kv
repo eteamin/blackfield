@@ -17,3 +17,27 @@
   Label:
     text: root.name
     pos_hint: {'center_x': 0.5, 'center_y': 0.1}
+
+
+<InsertDataScreen>:
+  MyTextInput:
+    id: name
+    hint_text: 'Name'
+    pos_hint: {'center_x': 0.5, 'center_y': 0.8}
+
+  MyTextInput:
+    id: code
+    hint_text: 'Code'
+    pos_hint: {'center_x': 0.5, 'center_y': 0.7}
+
+  BoxLayout:
+    size_hint_y: None
+    height: 300
+    FileChooserIconView:
+      id: filechooser
+      on_selection: root.save(name.text, code.text, filechooser.selection)
+
+<MyTextInput@TextInput>
+  size_hint: None, None
+  size: 250, 50
+  background_color: 1, 1, 1, 1
